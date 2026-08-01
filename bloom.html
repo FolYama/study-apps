@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
+<title>STUDY BLOOM — わたしの勉強手帳</title>
+<style>
+  :root {
+    --paper: #fdf9f6;
+    --card: #ffffff;
+    --ink: #48383f;
+    --ink-soft: #94808a;
+    --line: #eeddd8;
+    --rose: #d46a8c;
+    --rose-soft: #fbeef3;
+    --lavender: #9b7fbe;
+    --sage: #7fa88b;
+    --blue: #7b9ec9;
+    --gold: #c9a227;
+    --danger: #cc5566;
+    --heat-0: #f6ece8;
+    --heat-1: #f3cfd9;
+    --heat-2: #e8a3b8;
+    --heat-3: #d46a8c;
+    --heat-4: #a94467;
+    --shadow: 0 3px 14px rgba(180, 120, 140, 0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #221a20;
+      --card: #2d232b;
+      --ink: #f2e6ec;
+      --ink-soft: #b099a7;
+      --line: #453540;
+      --rose: #e588a6;
+      --rose-soft: #3d2a33;
+      --lavender: #b59ad6;
+      --sage: #97bfa3;
+      --blue: #93b4da;
+      --gold: #d9b54a;
+      --danger: #e57b8a;
+      --heat-0: #362a32;
+      --heat-1: #55323f;
+      --heat-2: #7c4055;
+      --heat-3: #ab5674;
+      --heat-4: #e588a6;
+      --shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #221a20; --card: #2d232b; --ink: #f2e6ec; --ink-soft: #b099a7;
+    --line: #453540; --rose: #e588a6; --rose-soft: #3d2a33; --lavender: #b59ad6;
+    --sage: #97bfa3; --blue: #93b4da; --gold: #d9b54a; --danger: #e57b8a;
+    --heat-0: #362a32; --heat-1: #55323f; --heat-2: #7c4055; --heat-3: #ab5674; --heat-4: #e588a6;
+    --shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
+  }
+  :root[data-theme="light"] {
+    --paper: #fdf9f6; --card: #ffffff; --ink: #48383f; --ink-soft: #94808a;
+    --line: #eeddd8; --rose: #d46a8c; --rose-soft: #fbeef3; --lavender: #9b7fbe;
+    --sage: #7fa88b; --blue: #7b9ec9; --gold: #c9a227; --danger: #cc5566;
+    --heat-0: #f6ece8; --heat-1: #f3cfd9; --heat-2: #e8a3b8; --heat-3: #d46a8c; --heat-4: #a94467;
+    --shadow: 0 3px 14px rgba(180, 120, 140, 0.10);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Hiragino Maru Gothic ProN", "BIZ UDPGothic", "Yu Gothic UI", "Meiryo", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 18px 16px 72px; }
+
+  /* ---------- header ---------- */
+  header.top { text-align: center; padding: 14px 0 4px; }
+  .app-title {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+    font-size: 1.5rem; letter-spacing: 0.24em; margin: 0; font-weight: 600;
+  }
+  .app-title .bloom { color: var(--rose); }
+  .app-sub { font-size: 0.72rem; color: var(--ink-soft); letter-spacing: 0.14em; margin-top: 2px; }
+  .today-date { font-size: 0.82rem; color: var(--ink-soft); margin-top: 8px; }
+
+  .hud {
+    display: flex; gap: 10px; margin-top: 14px;
+  }
+  .hud-card {
+    flex: 1; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 10px 8px; text-align: center; box-shadow: var(--shadow);
+  }
+  .hud-card .v { font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--rose); line-height: 1.25; }
+  .hud-card .v small { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); }
+  .hud-card .k { font-size: 0.66rem; color: var(--ink-soft); letter-spacing: 0.06em; }
+
+  /* ---------- level strip ---------- */
+  .level-strip {
+    margin-top: 10px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .lv-badge {
+    width: 54px; height: 54px; border-radius: 50%; flex-shrink: 0;
+    border: 2.5px solid var(--rose); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; line-height: 1;
+    background: var(--rose-soft);
+  }
+  .lv-badge .lv { font-size: 0.5rem; color: var(--rose); letter-spacing: 0.1em; font-weight: 800; }
+  .lv-badge .n { font-size: 1.3rem; font-weight: 900; color: var(--rose); font-variant-numeric: tabular-nums; }
+  .level-main { flex: 1; min-width: 0; }
+  .level-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .title-chip {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+    font-size: 0.9rem; font-weight: 700; letter-spacing: 0.1em;
+  }
+  .title-chip::before { content: "❀ "; color: var(--gold); }
+  .xp-nums { font-size: 0.72rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .xp-bar { height: 9px; border-radius: 999px; background: var(--heat-0); overflow: hidden; }
+  .xp-bar > i {
+    display: block; height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--rose), var(--gold));
+    transition: width 0.5s ease;
+  }
+
+  /* ---------- reward card ---------- */
+  .reward-card {
+    margin-top: 10px; border-radius: 14px; padding: 12px 14px;
+    background: linear-gradient(135deg, var(--rose-soft), var(--card) 60%);
+    border: 1px solid var(--rose); box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .reward-balance { text-align: center; flex-shrink: 0; min-width: 84px; }
+  .reward-balance .num {
+    font-size: 1.7rem; font-weight: 900; font-variant-numeric: tabular-nums;
+    color: var(--rose); line-height: 1.15;
+  }
+  .reward-balance .num small { font-size: 0.8rem; font-weight: 700; }
+  .reward-balance .lbl { font-size: 0.6rem; color: var(--ink-soft); letter-spacing: 0.12em; }
+  .reward-main { flex: 1; min-width: 200px; }
+  .reward-rate { font-size: 0.74rem; color: var(--ink-soft); margin-bottom: 7px; }
+  .reward-rate b { color: var(--rose); }
+  .reward-use { display: flex; gap: 7px; flex-wrap: wrap; }
+  .chip-btn {
+    background: transparent; border: 1.5px solid var(--rose); color: var(--rose);
+    border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; font-weight: 800;
+    cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .chip-btn:hover { background: var(--rose-soft); }
+  .chip-btn:active { transform: translateY(1px); }
+  .reward-today { font-size: 0.68rem; color: var(--ink-soft); margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .reward-msg { font-size: 0.74rem; color: var(--ink-soft); margin-top: 4px; }
+  .reward-msg b { color: var(--rose); }
+
+  /* ---------- collection ---------- */
+  .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
+  .ach {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px; display: flex; gap: 8px; align-items: center;
+    opacity: 0.45; filter: grayscale(0.9);
+  }
+  .ach.got { opacity: 1; filter: none; border-color: var(--gold); box-shadow: var(--shadow); }
+  .ach .ico { font-size: 1.3rem; flex-shrink: 0; }
+  .ach .nm { font-size: 0.74rem; font-weight: 800; line-height: 1.25; }
+  .ach .ds { font-size: 0.62rem; color: var(--ink-soft); line-height: 1.3; }
+
+  .habit-strip {
+    margin-top: 10px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow);
+  }
+  .habit-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .habit-head .t { font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 0.1em; }
+  .habit-head .n { font-size: 0.82rem; font-weight: 800; color: var(--sage); font-variant-numeric: tabular-nums; }
+  .habit-bar { height: 9px; border-radius: 999px; background: var(--heat-0); overflow: hidden; }
+  .habit-bar > i {
+    display: block; height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--sage), var(--rose));
+    transition: width 0.6s ease;
+  }
+  .habit-note { font-size: 0.66rem; color: var(--ink-soft); margin-top: 5px; }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 30px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 4px; }
+  .sec-head h2 {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+    font-size: 1.02rem; font-weight: 600; letter-spacing: 0.12em; margin: 0;
+  }
+  .sec-head h2::before { content: "❀ "; color: var(--rose); font-size: 0.85em; }
+  .sec-sub { font-size: 0.72rem; color: var(--ink-soft); }
+
+  /* ---------- subject cards ---------- */
+  .subj-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    padding: 16px; margin-top: 12px; box-shadow: var(--shadow);
+    border-top: 3px solid var(--subj-color, var(--rose));
+  }
+  .subj-top { display: flex; gap: 14px; align-items: center; }
+  .ring-wrap { position: relative; width: 74px; height: 74px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-txt {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; line-height: 1.15;
+  }
+  .ring-txt .p { font-size: 0.95rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ring-txt .u { font-size: 0.56rem; color: var(--ink-soft); }
+  .subj-info { flex: 1; min-width: 0; }
+  .subj-name { font-size: 1.05rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .exam-chip {
+    font-size: 0.68rem; font-weight: 800; padding: 2px 10px; border-radius: 999px;
+    background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose);
+    font-variant-numeric: tabular-nums;
+  }
+  .exam-chip.close { background: var(--rose); color: #fff; }
+  .subj-week { font-size: 0.78rem; color: var(--ink-soft); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .subj-week b { color: var(--ink); }
+  .subj-total { font-size: 0.7rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+  .subj-log { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  .min-chip {
+    background: transparent; border: 1.5px solid var(--subj-color, var(--rose));
+    color: var(--subj-color, var(--rose));
+    border-radius: 999px; padding: 6px 14px; font-size: 0.82rem; font-weight: 800;
+    cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .min-chip:hover { background: var(--rose-soft); }
+  .min-chip:active { transform: translateY(1px); }
+  .subj-log input[type="number"] {
+    width: 62px; padding: 7px 9px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--paper); color: var(--ink); font-size: 0.95rem; font-family: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+  .subj-log input:focus, .add-form input:focus, .add-form select:focus, .task-add input:focus, .task-add select:focus {
+    outline: 2px solid var(--rose); outline-offset: 1px; border-color: var(--rose);
+  }
+  .log-custom-btn {
+    background: var(--subj-color, var(--rose)); color: #fff; border: none;
+    padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 800;
+    font-family: inherit; cursor: pointer;
+  }
+  .log-custom-btn:active { transform: translateY(1px); }
+  .del-btn {
+    background: none; border: none; color: var(--ink-soft); font-size: 0.72rem;
+    cursor: pointer; padding: 4px 6px; border-radius: 8px; font-family: inherit;
+  }
+  .del-btn:hover { color: var(--danger); background: var(--rose-soft); }
+  .subj-head-row { display: flex; justify-content: space-between; align-items: flex-start; }
+
+  /* ---------- add forms ---------- */
+  details.adder { margin-top: 12px; }
+  details.adder summary {
+    cursor: pointer; font-weight: 800; font-size: 0.85rem; color: var(--rose);
+    padding: 8px 4px; list-style: none;
+  }
+  details.adder summary::-webkit-details-marker { display: none; }
+  details.adder summary::before { content: "＋ "; }
+  .add-form {
+    background: var(--card); border: 1.5px dashed var(--line); border-radius: 16px;
+    padding: 14px; display: grid; gap: 10px;
+  }
+  .add-form label { font-size: 0.76rem; font-weight: 700; color: var(--ink-soft); display: grid; gap: 4px; }
+  .add-form input, .add-form select {
+    padding: 10px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--paper); color: var(--ink); font-size: 0.95rem; font-family: inherit;
+  }
+  button.primary {
+    background: var(--rose); color: #fff; border: none;
+    padding: 10px 18px; border-radius: 12px;
+    font-size: 0.92rem; font-weight: 800; font-family: inherit; cursor: pointer;
+  }
+  button.primary:active { transform: translateY(1px); }
+
+  /* ---------- tasks ---------- */
+  .task-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+  .task-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 10px 12px;
+  }
+  .task-item input[type="checkbox"] {
+    width: 20px; height: 20px; accent-color: var(--rose); cursor: pointer; flex-shrink: 0;
+  }
+  .task-item .txt { flex: 1; font-size: 0.92rem; font-weight: 600; min-width: 0; }
+  .task-item .meta { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+  .subj-tag {
+    font-size: 0.64rem; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+    color: #fff; background: var(--tag-color, var(--rose)); white-space: nowrap;
+  }
+  .due {
+    font-size: 0.7rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .due.overdue { color: var(--danger); font-weight: 800; }
+  .due.soon { color: var(--rose); font-weight: 800; }
+  .task-item.done .txt { text-decoration: line-through; color: var(--ink-soft); }
+  .task-add { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .task-add input[type="text"] { flex: 2; min-width: 150px; }
+  .task-add input, .task-add select {
+    padding: 9px 11px; border-radius: 11px; border: 1.5px solid var(--line);
+    background: var(--card); color: var(--ink); font-size: 0.9rem; font-family: inherit;
+  }
+
+  /* ---------- calendar ---------- */
+  .cal-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 14px; margin-top: 12px; box-shadow: var(--shadow);
+  }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cal-nav b { font-size: 0.92rem; letter-spacing: 0.08em; }
+  .cal-nav button {
+    background: var(--rose-soft); border: none; border-radius: 10px;
+    width: 32px; height: 32px; font-size: 0.9rem; cursor: pointer; color: var(--rose);
+  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { text-align: center; font-size: 0.66rem; color: var(--ink-soft); font-weight: 700; padding: 2px 0; }
+  .cal-cell {
+    aspect-ratio: 1; border-radius: 9px; background: var(--heat-0);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 0.68rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; gap: 1px;
+  }
+  .cal-cell.h1 { background: var(--heat-1); }
+  .cal-cell.h2 { background: var(--heat-2); }
+  .cal-cell.h3 { background: var(--heat-3); color: #fff; }
+  .cal-cell.h4 { background: var(--heat-4); color: #fff; }
+  .cal-cell.empty { background: transparent; }
+  .cal-cell.today { outline: 2px solid var(--rose); outline-offset: -2px; }
+  .cal-cell .m { font-size: 0.56rem; opacity: 0.85; line-height: 1; }
+  .cal-legend {
+    display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+    margin-top: 8px; font-size: 0.62rem; color: var(--ink-soft);
+  }
+  .cal-legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  .empty-note {
+    text-align: center; color: var(--ink-soft); font-size: 0.84rem;
+    padding: 18px 10px; border: 1.5px dashed var(--line); border-radius: 16px; margin-top: 12px;
+  }
+
+  /* ---------- storage warn / backup ---------- */
+  .storage-warn {
+    margin-top: 12px; padding: 10px 14px; border-radius: 12px;
+    background: var(--rose-soft); border: 1px solid var(--danger);
+    color: var(--ink); font-size: 0.8rem; line-height: 1.55;
+  }
+  .storage-warn b { color: var(--danger); }
+  .backup-card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px; margin-top: 12px; box-shadow: var(--shadow);
+  }
+  .backup-note { font-size: 0.74rem; color: var(--ink-soft); margin: 0 0 10px; line-height: 1.6; }
+  .backup-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  #bkArea {
+    width: 100%; min-height: 84px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--paper); color: var(--ink); font-size: 0.68rem;
+    font-family: Consolas, monospace; padding: 8px; resize: vertical;
+  }
+  .bk-status { font-size: 0.74rem; color: var(--sage); margin-top: 8px; min-height: 1.2em; }
+
+  /* ---------- toast ---------- */
+  #toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(80px);
+    background: var(--ink); color: var(--paper); padding: 10px 22px; border-radius: 999px;
+    font-size: 0.88rem; font-weight: 800; opacity: 0; transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25); pointer-events: none; z-index: 50;
+    max-width: 90vw; text-align: center;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .habit-bar > i, #toast { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="storage-warn" id="storageWarn" style="display:none"></div>
+  <header class="top">
+    <h1 class="app-title">STUDY <span class="bloom">BLOOM</span></h1>
+    <div class="app-sub">がんばりが、花になる。</div>
+    <div class="today-date" id="todayDate"></div>
+  </header>
+
+  <div class="hud">
+    <div class="hud-card"><div class="v" id="hudStreak">0<small> 日</small></div><div class="k">連続日数</div></div>
+    <div class="hud-card"><div class="v" id="hudWeek">0<small> 分</small></div><div class="k">今週の合計</div></div>
+    <div class="hud-card"><div class="v" id="hudToday">0<small> 分</small></div><div class="k">今日の勉強</div></div>
+  </div>
+
+  <div class="level-strip">
+    <div class="lv-badge"><span class="lv">LV</span><span class="n" id="lvNum">1</span></div>
+    <div class="level-main">
+      <div class="level-head">
+        <span class="title-chip" id="lvTitle">たね</span>
+        <span class="xp-nums" id="xpNums">0 / 100 XP</span>
+      </div>
+      <div class="xp-bar"><i id="xpBar" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <div class="reward-card">
+    <div class="reward-balance">
+      <div class="num" id="rewardBalance">0<small> 分</small></div>
+      <div class="lbl">ごほうびタイム</div>
+    </div>
+    <div class="reward-main">
+      <div class="reward-rate">勉強 <b>2時間</b> → 好きなこと <b>40分</b> チャージ（使えるのは1日 <b>60分</b> まで）</div>
+      <div class="reward-use" id="rewardUse">
+        <button class="chip-btn" data-use="15">🎀 15分使う</button>
+        <button class="chip-btn" data-use="30">🎀 30分使う</button>
+        <button class="chip-btn" data-use="60">🎀 60分使う</button>
+      </div>
+      <div class="reward-today" id="rewardToday"></div>
+      <div class="reward-msg" id="rewardMsg"></div>
+    </div>
+  </div>
+
+  <div class="habit-strip">
+    <div class="habit-head">
+      <span class="t">習慣化メーター</span>
+      <span class="n" id="habitNums">0 / 66日</span>
+    </div>
+    <div class="habit-bar"><i id="habitBar" style="width:0%"></i></div>
+    <div class="habit-note">研究では平均66日で習慣に。1日抜けても大丈夫、勉強した日の累計で進みます</div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="serif">科目</h2>
+      <span class="sec-sub">タップで今日の勉強時間を記録</span>
+    </div>
+    <div id="subjList"></div>
+    <details class="adder" id="subjAdder">
+      <summary>科目を追加する</summary>
+      <div class="add-form">
+        <label>科目名
+          <input type="text" id="sjName" placeholder="例：TOEIC対策">
+        </label>
+        <label>週の目標時間（時間・空欄でもOK）
+          <input type="number" id="sjGoal" min="0" step="0.5" placeholder="例：5">
+        </label>
+        <label>試験日・締切（あれば）
+          <input type="date" id="sjExam">
+        </label>
+        <button class="primary" id="sjAddBtn">追加する</button>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="serif">課題・タスク</h2>
+      <span class="sec-sub" id="taskCount"></span>
+    </div>
+    <ul class="task-list" id="taskList"></ul>
+    <div class="task-add">
+      <input type="text" id="taskInput" placeholder="例：英語のレポート提出">
+      <select id="taskSubj"></select>
+      <input type="date" id="taskDue">
+      <button class="primary" id="taskAddBtn">追加</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="serif">きろく</h2>
+      <span class="sec-sub">色が濃いほどたくさん勉強した日</span>
+    </div>
+    <div class="cal-card">
+      <div class="cal-nav">
+        <button id="calPrev" aria-label="前の月">◀</button>
+        <b class="serif" id="calTitle"></b>
+        <button id="calNext" aria-label="次の月">▶</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        少 <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> 多
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="serif">コレクション</h2>
+      <span class="sec-sub" id="achCount"></span>
+    </div>
+    <div class="ach-grid" id="achGrid"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2 class="serif">データのバックアップ</h2>
+    </div>
+    <div class="backup-card">
+      <p class="backup-note">記録はこの端末のブラウザの中に保存されます。開き方を変えたりスマホの設定によって消えることがあるので、<b>週1回くらいバックアップコードを保存</b>しておくと安心。いつも同じブラウザ（ホーム画面のショートカット）から開くのも大切です。</p>
+      <div class="backup-btns">
+        <button class="primary" id="bkExport">バックアップコードを出す</button>
+        <button class="primary" id="bkImport">コードから復元する</button>
+      </div>
+      <textarea id="bkArea" placeholder="「バックアップコードを出す」→ ここに出たコードをコピーして、LINEのKeepメモなどに貼って保存。&#10;復元するときは、保存したコードをここに貼りつけて「コードから復元する」。"></textarea>
+      <div class="bk-status" id="bkStatus"></div>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function () {
+  var KEY = "study-bloom-v1";
+  var COLORS = ["var(--rose)", "var(--lavender)", "var(--sage)", "var(--blue)", "var(--gold)"];
+  var state = load();
+
+  function ymd(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function parseYmd(s) {
+    var p = s.split("-");
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+  var today = new Date();
+  var todayStr = ymd(today);
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        return { subjects: s.subjects || [], entries: s.entries || [], tasks: s.tasks || [], rewardUses: s.rewardUses || [] };
+      }
+    } catch (e) {}
+    // 初回：よく使う3科目をセット（自由に消して入れ替えOK）
+    return {
+      subjects: [
+        { id: "sj-eigo", name: "英語", color: COLORS[1], goal: 300, exam: "" },
+        { id: "sj-takken", name: "宅建", color: COLORS[0], goal: 420, exam: "2026-10-18" },
+        { id: "sj-kadai", name: "大学の課題", color: COLORS[2], goal: 0, exam: "" }
+      ],
+      entries: [], tasks: [], rewardUses: []
+    };
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function uid() { return "id" + Math.random().toString(36).slice(2, 10); }
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._tm);
+    t._tm = setTimeout(function () { t.classList.remove("show"); }, 2200);
+  }
+  function fmtMin(m) {
+    if (m < 60) return m + "分";
+    var h = Math.floor(m / 60), r = m % 60;
+    return r === 0 ? h + "時間" : h + "時間" + r + "分";
+  }
+
+  /* ---------- derived ---------- */
+  function minutesOn(dateStr, subjId) {
+    return state.entries.filter(function (e) {
+      return e.date === dateStr && (!subjId || e.subjId === subjId);
+    }).reduce(function (s, e) { return s + (e.minutes || 0); }, 0);
+  }
+  function weekStart() {
+    var d = new Date(today);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // 月曜はじまり
+    return d;
+  }
+  function weekMinutes(subjId) {
+    var ws = ymd(weekStart());
+    return state.entries.filter(function (e) {
+      return e.date >= ws && e.date <= todayStr && (!subjId || e.subjId === subjId);
+    }).reduce(function (s, e) { return s + (e.minutes || 0); }, 0);
+  }
+  function totalMinutes(subjId) {
+    return state.entries.filter(function (e) { return e.subjId === subjId; })
+      .reduce(function (s, e) { return s + (e.minutes || 0); }, 0);
+  }
+  function studiedDates() {
+    var set = {};
+    state.entries.forEach(function (e) { if ((e.minutes || 0) > 0) set[e.date] = true; });
+    return set;
+  }
+  function calcStreak() {
+    var set = studiedDates();
+    var n = 0;
+    var d = new Date(today);
+    if (!set[ymd(d)]) d.setDate(d.getDate() - 1);
+    while (set[ymd(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+
+  /* ---------- XP / level ---------- */
+  function totalStats() {
+    var mins = state.entries.reduce(function (s, e) { return s + (e.minutes || 0); }, 0);
+    return {
+      mins: mins,
+      days: Object.keys(studiedDates()).length,
+      tasksDone: state.tasks.filter(function (t) { return t.done; }).length
+    };
+  }
+  function calcXp(st) {
+    return st.mins * 2 + st.days * 20 + st.tasksDone * 30;
+  }
+  function needFor(lv) { return 100 + (lv - 1) * 50; } // その次のレベルに必要なXP
+  function levelFromXp(xp) {
+    var lv = 1, rest = xp;
+    while (rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
+    return { lv: lv, cur: rest, need: needFor(lv) };
+  }
+  var TITLES = [
+    [25, "FULL BLOOM"], [20, "花束"], [16, "満開"], [12, "花ひらく"],
+    [8, "一輪咲き"], [5, "つぼみ"], [3, "ふたば"], [1, "たね"]
+  ];
+  function titleFor(lv) {
+    for (var i = 0; i < TITLES.length; i++) if (lv >= TITLES[i][0]) return TITLES[i][1];
+    return "たね";
+  }
+  function renderLevel() {
+    var info = levelFromXp(calcXp(totalStats()));
+    document.getElementById("lvNum").textContent = info.lv;
+    document.getElementById("lvTitle").textContent = titleFor(info.lv);
+    document.getElementById("xpNums").textContent = info.cur + " / " + info.need + " XP";
+    document.getElementById("xpBar").style.width = Math.round((info.cur / info.need) * 100) + "%";
+  }
+
+  /* ---------- ごほうびタイム ---------- */
+  var REWARD_RATE = 3; // 勉強3分 → ごほうび1分（2時間→40分）
+  var PLAY_CAP = 60;   // 1日の使用上限
+  function rewardEarned() {
+    var mins = state.entries.reduce(function (s, e) { return s + (e.minutes || 0); }, 0);
+    return Math.floor(mins / REWARD_RATE);
+  }
+  function rewardUsedToday() {
+    return state.rewardUses.filter(function (u) { return u.date === todayStr; })
+      .reduce(function (s, u) { return s + (u.minutes || 0); }, 0);
+  }
+  function rewardBalance() {
+    return rewardEarned() - state.rewardUses.reduce(function (s, u) { return s + (u.minutes || 0); }, 0);
+  }
+  function renderReward() {
+    var bal = rewardBalance();
+    var usedToday = rewardUsedToday();
+    document.getElementById("rewardBalance").innerHTML = bal + "<small> 分</small>";
+    var parts = ["今日の勉強でチャージ +" + Math.floor(minutesOn(todayStr, null) / REWARD_RATE) + "分"];
+    if (usedToday > 0) parts.push("今日使った分 −" + usedToday + "分");
+    document.getElementById("rewardToday").textContent = parts.join(" ／ ");
+    var msg = "";
+    if (usedToday >= PLAY_CAP) {
+      msg = "今日の上限 " + PLAY_CAP + "分 に到達。続きは明日のおたのしみ";
+    } else if (bal <= 0) {
+      msg = "残高ゼロ。<b>先に勉強してチャージ</b>しよう（勉強" + REWARD_RATE + "分で+1分）";
+    } else if (bal < 15) {
+      msg = "あと勉強" + ((15 - bal) * REWARD_RATE) + "分で、15分つかえる";
+    }
+    document.getElementById("rewardMsg").innerHTML = msg;
+    document.querySelectorAll("#rewardUse .chip-btn").forEach(function (b) {
+      var amt = parseInt(b.getAttribute("data-use"), 10);
+      b.disabled = bal < amt || usedToday + amt > PLAY_CAP;
+      b.style.opacity = b.disabled ? 0.4 : 1;
+      b.style.cursor = b.disabled ? "default" : "pointer";
+    });
+  }
+  document.querySelectorAll("#rewardUse .chip-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var amount = parseInt(b.getAttribute("data-use"), 10);
+      var bal = rewardBalance();
+      if (rewardUsedToday() + amount > PLAY_CAP) {
+        toast("今日の上限は" + PLAY_CAP + "分まで。続きは明日 ❀");
+        return;
+      }
+      if (bal < amount) {
+        toast("残高不足！勉強" + ((amount - bal) * REWARD_RATE) + "分でチャージできるよ");
+        return;
+      }
+      if (!confirm("ごほうびタイムを " + amount + "分 使いますか？（残り " + (bal - amount) + "分になります）")) return;
+      state.rewardUses.push({ id: uid(), date: todayStr, minutes: amount });
+      save(); renderAll();
+      toast("🎀 ごほうびタイム " + amount + "分 スタート！");
+    });
+  });
+
+  /* ---------- コレクション（実績） ---------- */
+  function achievements() {
+    var st = totalStats();
+    var streak = calcStreak();
+    var byDay = {};
+    state.entries.forEach(function (e) {
+      if (!byDay[e.date]) byDay[e.date] = { mins: 0, subjs: {} };
+      byDay[e.date].mins += (e.minutes || 0);
+      if ((e.minutes || 0) > 0) byDay[e.date].subjs[e.subjId] = true;
+    });
+    var maxDayMin = 0, maxDaySubjs = 0;
+    Object.keys(byDay).forEach(function (d) {
+      if (byDay[d].mins > maxDayMin) maxDayMin = byDay[d].mins;
+      var n = Object.keys(byDay[d].subjs).length;
+      if (n > maxDaySubjs) maxDaySubjs = n;
+    });
+    return [
+      { ico: "🌱", nm: "はじめの一歩", ds: "はじめて記録した", got: st.days >= 1 },
+      { ico: "🍀", nm: "三日坊主卒業", ds: "3日連続で勉強", got: streak >= 3 },
+      { ico: "🌿", nm: "一週間の花冠", ds: "7日連続で勉強", got: streak >= 7 },
+      { ico: "🌸", nm: "21日の壁", ds: "21日連続（俗説の習慣化ライン）", got: streak >= 21 },
+      { ico: "🌷", nm: "習慣のつぼみ", ds: "累計18日勉強（研究の最短ライン）", got: st.days >= 18 },
+      { ico: "🪻", nm: "習慣ロード", ds: "累計30日勉強", got: st.days >= 30 },
+      { ico: "💐", nm: "習慣化マスター", ds: "累計66日勉強（研究の平均日数）", got: st.days >= 66 },
+      { ico: "⏱️", nm: "累計10時間", ds: "勉強時間 合計10時間", got: st.mins >= 600 },
+      { ico: "⏳", nm: "累計30時間", ds: "勉強時間 合計30時間", got: st.mins >= 1800 },
+      { ico: "📚", nm: "累計50時間", ds: "勉強時間 合計50時間", got: st.mins >= 3000 },
+      { ico: "💮", nm: "集中モード", ds: "1日で2時間以上", got: maxDayMin >= 120 },
+      { ico: "🌹", nm: "バランス上手", ds: "1日に3科目以上勉強", got: maxDaySubjs >= 3 },
+      { ico: "✅", nm: "タスクハンター", ds: "課題・タスクを10件完了", got: st.tasksDone >= 10 },
+      { ico: "👑", nm: "クイーン", ds: "勉強時間 合計100時間", got: st.mins >= 6000 }
+    ];
+  }
+  function renderAch() {
+    var list = achievements();
+    var got = list.filter(function (a) { return a.got; }).length;
+    document.getElementById("achCount").textContent = got + " / " + list.length + " 咲いた";
+    document.getElementById("achGrid").innerHTML = list.map(function (a) {
+      return '<div class="ach' + (a.got ? " got" : "") + '"><span class="ico">' + a.ico + "</span>" +
+        '<div><div class="nm">' + a.nm + '</div><div class="ds">' + a.ds + "</div></div></div>";
+    }).join("");
+  }
+
+  /* ---------- render: HUD ---------- */
+  function renderHud() {
+    document.getElementById("hudStreak").innerHTML = calcStreak() + "<small> 日</small>";
+    var wk = weekMinutes(null);
+    document.getElementById("hudWeek").innerHTML = wk >= 60
+      ? (Math.floor(wk / 60) + "<small> 時間</small>" + (wk % 60 ? (wk % 60) + "<small> 分</small>" : ""))
+      : wk + "<small> 分</small>";
+    document.getElementById("hudToday").innerHTML = minutesOn(todayStr, null) + "<small> 分</small>";
+
+    var days = Object.keys(studiedDates()).length;
+    var pct = Math.min(100, Math.round((days / 66) * 100));
+    document.getElementById("habitBar").style.width = pct + "%";
+    document.getElementById("habitNums").textContent =
+      days >= 66 ? days + "日 — 習慣化達成 ❀" : days + " / 66日";
+  }
+
+  /* ---------- render: subjects ---------- */
+  function ringSvg(pct, color) {
+    var r = 31, c = 2 * Math.PI * r;
+    var off = c * (1 - Math.min(1, pct));
+    return '<svg width="74" height="74" viewBox="0 0 74 74">' +
+      '<circle cx="37" cy="37" r="' + r + '" fill="none" stroke="var(--heat-0)" stroke-width="7"/>' +
+      '<circle cx="37" cy="37" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="7" stroke-linecap="round" ' +
+      'stroke-dasharray="' + c + '" stroke-dashoffset="' + off + '"/></svg>';
+  }
+  function renderSubjects() {
+    var wrap = document.getElementById("subjList");
+    wrap.innerHTML = "";
+    if (state.subjects.length === 0) {
+      wrap.innerHTML = '<div class="empty-note">「＋科目を追加する」から科目を登録しよう</div>';
+    }
+    state.subjects.forEach(function (sj) {
+      var wk = weekMinutes(sj.id);
+      var hasGoal = sj.goal > 0;
+      var pct = hasGoal ? wk / sj.goal : 0;
+      var pctTxt = hasGoal ? Math.round(pct * 100) + "%" : fmtMin(wk);
+      var tdy = minutesOn(todayStr, sj.id);
+
+      var examHtml = "";
+      if (sj.exam) {
+        var dl = Math.floor((parseYmd(sj.exam) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+        if (dl > 0) examHtml = '<span class="exam-chip' + (dl <= 14 ? " close" : "") + '">試験まで あと' + dl + "日</span>";
+        else if (dl === 0) examHtml = '<span class="exam-chip close">今日が試験日！</span>';
+      }
+
+      var card = document.createElement("div");
+      card.className = "subj-card";
+      card.style.setProperty("--subj-color", sj.color);
+      card.innerHTML =
+        '<div class="subj-head-row"><div class="subj-top" style="flex:1">' +
+        '<div class="ring-wrap">' + ringSvg(pct, sj.color) +
+        '<div class="ring-txt"><span class="p">' + pctTxt + "</span>" + (hasGoal ? '<span class="u">今週</span>' : '<span class="u">今週合計</span>') + "</div></div>" +
+        '<div class="subj-info"><h3 class="subj-name">' + esc(sj.name) + " " + examHtml + "</h3>" +
+        '<div class="subj-week">今週 <b>' + fmtMin(wk) + "</b>" + (hasGoal ? " / 目標 " + fmtMin(sj.goal) : "") + "　今日 <b>" + fmtMin(tdy) + "</b></div>" +
+        '<div class="subj-total">累計 ' + fmtMin(totalMinutes(sj.id)) + "</div></div></div>" +
+        '<button class="del-btn" data-del="' + sj.id + '">削除</button></div>' +
+        '<div class="subj-log">' +
+        '<button class="min-chip" data-add="' + sj.id + '" data-min="15">+15分</button>' +
+        '<button class="min-chip" data-add="' + sj.id + '" data-min="30">+30分</button>' +
+        '<button class="min-chip" data-add="' + sj.id + '" data-min="60">+60分</button>' +
+        '<input type="number" min="1" id="cm-' + sj.id + '" placeholder="分">' +
+        '<button class="log-custom-btn" data-custom="' + sj.id + '">記録</button></div>';
+      wrap.appendChild(card);
+    });
+
+    wrap.querySelectorAll("[data-add]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        addEntry(b.getAttribute("data-add"), parseInt(b.getAttribute("data-min"), 10));
+      });
+    });
+    wrap.querySelectorAll("[data-custom]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-custom");
+        var v = parseInt(document.getElementById("cm-" + id).value, 10);
+        if (!v || v < 1) return;
+        addEntry(id, v);
+      });
+    });
+    wrap.querySelectorAll("[data-del]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-del");
+        var sj = state.subjects.find(function (x) { return x.id === id; });
+        if (!confirm("「" + sj.name + "」を削除しますか？この科目の記録も消えます。")) return;
+        state.subjects = state.subjects.filter(function (x) { return x.id !== id; });
+        state.entries = state.entries.filter(function (e) { return e.subjId !== id; });
+        state.tasks = state.tasks.filter(function (t) { return t.subjId !== id; });
+        save(); renderAll();
+      });
+    });
+  }
+
+  function addEntry(subjId, mins) {
+    var sj = state.subjects.find(function (x) { return x.id === subjId; });
+    var beforeGoal = sj.goal > 0 && weekMinutes(subjId) < sj.goal;
+    var beforeXp = calcXp(totalStats());
+    var beforeLv = levelFromXp(beforeXp).lv;
+    var beforeAch = achievements().filter(function (a) { return a.got; }).length;
+    var beforeReward = rewardEarned();
+    state.entries.push({ id: uid(), subjId: subjId, date: todayStr, minutes: mins });
+    save(); renderAll();
+    var afterXp = calcXp(totalStats());
+    var afterLv = levelFromXp(afterXp).lv;
+    var afterAch = achievements().filter(function (a) { return a.got; }).length;
+    var charged = rewardEarned() - beforeReward;
+    var chargeTxt = charged > 0 ? " ／ 🎀 +" + charged + "分" : "";
+    if (afterLv > beforeLv) {
+      toast("❀ LEVEL UP! Lv." + afterLv + " 「" + titleFor(afterLv) + "」" + chargeTxt);
+    } else if (afterAch > beforeAch) {
+      toast("💐 新しい花が咲いた！コレクションを見てみて" + chargeTxt);
+    } else if (beforeGoal && sj.goal > 0 && weekMinutes(subjId) >= sj.goal) {
+      toast("❀ " + sj.name + " 今週の目標達成！おつかれさま" + chargeTxt);
+    } else {
+      toast("+" + mins + "分 " + sj.name + "（+" + (afterXp - beforeXp) + " XP）" + chargeTxt);
+    }
+  }
+
+  /* ---------- add subject ---------- */
+  document.getElementById("sjAddBtn").addEventListener("click", function () {
+    var name = document.getElementById("sjName").value.trim();
+    if (!name) { alert("科目名を入れてください"); return; }
+    var goalH = parseFloat(document.getElementById("sjGoal").value);
+    var exam = document.getElementById("sjExam").value;
+    var color = COLORS[state.subjects.length % COLORS.length];
+    state.subjects.push({
+      id: uid(), name: name, color: color,
+      goal: goalH > 0 ? Math.round(goalH * 60) : 0, exam: exam || ""
+    });
+    document.getElementById("sjName").value = "";
+    document.getElementById("sjGoal").value = "";
+    document.getElementById("sjExam").value = "";
+    document.getElementById("subjAdder").open = false;
+    save(); renderAll();
+  });
+
+  /* ---------- tasks ---------- */
+  function renderTasks() {
+    var sel = document.getElementById("taskSubj");
+    sel.innerHTML = '<option value="">科目なし</option>' + state.subjects.map(function (sj) {
+      return '<option value="' + sj.id + '">' + esc(sj.name) + "</option>";
+    }).join("");
+
+    var ul = document.getElementById("taskList");
+    ul.innerHTML = "";
+    var open = state.tasks.filter(function (t) { return !t.done; }).length;
+    document.getElementById("taskCount").textContent = open > 0 ? "のこり " + open + " 件" : "";
+
+    if (state.tasks.length === 0) {
+      ul.innerHTML = '<li class="empty-note">課題や提出物を追加しよう</li>';
+      return;
+    }
+    var sorted = state.tasks.slice().sort(function (a, b) {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      return (a.due || "9999") < (b.due || "9999") ? -1 : 1;
+    });
+    sorted.forEach(function (t) {
+      var sj = state.subjects.find(function (x) { return x.id === t.subjId; });
+      var dueHtml = "";
+      if (t.due) {
+        var dl = Math.floor((parseYmd(t.due) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+        var d = parseYmd(t.due);
+        var lbl = (d.getMonth() + 1) + "/" + d.getDate();
+        if (t.done) dueHtml = '<span class="due">' + lbl + "</span>";
+        else if (dl < 0) dueHtml = '<span class="due overdue">' + lbl + " 期限切れ</span>";
+        else if (dl === 0) dueHtml = '<span class="due soon">今日まで！</span>';
+        else if (dl <= 3) dueHtml = '<span class="due soon">' + lbl + "（あと" + dl + "日）</span>";
+        else dueHtml = '<span class="due">' + lbl + "</span>";
+      }
+      var li = document.createElement("li");
+      li.className = "task-item" + (t.done ? " done" : "");
+      li.innerHTML =
+        '<input type="checkbox" ' + (t.done ? "checked" : "") + ' data-task="' + t.id + '" aria-label="完了">' +
+        '<span class="txt">' + esc(t.text) + "</span>" +
+        '<span class="meta">' +
+        (sj ? '<span class="subj-tag" style="--tag-color:' + sj.color + '">' + esc(sj.name) + "</span>" : "") +
+        dueHtml +
+        '<button class="del-btn" data-taskdel="' + t.id + '">削除</button></span>';
+      ul.appendChild(li);
+    });
+    ul.querySelectorAll("[data-task]").forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var t = state.tasks.find(function (x) { return x.id === cb.getAttribute("data-task"); });
+        var beforeLv = levelFromXp(calcXp(totalStats())).lv;
+        var beforeAch = achievements().filter(function (a) { return a.got; }).length;
+        t.done = cb.checked;
+        save(); renderAll();
+        if (t.done) {
+          var afterLv = levelFromXp(calcXp(totalStats())).lv;
+          var afterAch = achievements().filter(function (a) { return a.got; }).length;
+          if (afterLv > beforeLv) toast("❀ LEVEL UP! Lv." + afterLv + " 「" + titleFor(afterLv) + "」");
+          else if (afterAch > beforeAch) toast("💐 新しい花が咲いた！コレクションを見てみて");
+          else toast("❀ 「" + t.text + "」完了！（+30 XP）");
+        }
+      });
+    });
+    ul.querySelectorAll("[data-taskdel]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.tasks = state.tasks.filter(function (x) { return x.id !== b.getAttribute("data-taskdel"); });
+        save(); renderTasks();
+      });
+    });
+  }
+  function addTask() {
+    var input = document.getElementById("taskInput");
+    var text = input.value.trim();
+    if (!text) return;
+    state.tasks.push({
+      id: uid(), text: text,
+      subjId: document.getElementById("taskSubj").value || "",
+      due: document.getElementById("taskDue").value || "",
+      done: false
+    });
+    input.value = "";
+    document.getElementById("taskDue").value = "";
+    save(); renderTasks();
+  }
+  document.getElementById("taskAddBtn").addEventListener("click", addTask);
+  document.getElementById("taskInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") addTask();
+  });
+
+  /* ---------- calendar ---------- */
+  var calYear = today.getFullYear(), calMonth = today.getMonth();
+  function heatClass(mins) {
+    if (mins <= 0) return "";
+    if (mins < 30) return " h1";
+    if (mins < 60) return " h2";
+    if (mins < 120) return " h3";
+    return " h4";
+  }
+  function renderCal() {
+    document.getElementById("calTitle").textContent = calYear + "年 " + (calMonth + 1) + "月";
+    var grid = document.getElementById("calGrid");
+    grid.innerHTML = "";
+    ["月", "火", "水", "木", "金", "土", "日"].forEach(function (w) {
+      var el = document.createElement("div");
+      el.className = "cal-dow";
+      el.textContent = w;
+      grid.appendChild(el);
+    });
+    var first = new Date(calYear, calMonth, 1);
+    var lead = (first.getDay() + 6) % 7;
+    var days = new Date(calYear, calMonth + 1, 0).getDate();
+    for (var i = 0; i < lead; i++) {
+      var e = document.createElement("div");
+      e.className = "cal-cell empty";
+      grid.appendChild(e);
+    }
+    for (var d = 1; d <= days; d++) {
+      var ds = calYear + "-" + String(calMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+      var mins = minutesOn(ds, null);
+      var cell = document.createElement("div");
+      cell.className = "cal-cell" + heatClass(mins) + (ds === todayStr ? " today" : "");
+      cell.innerHTML = "<span>" + d + "</span>" + (mins > 0 ? '<span class="m">' + mins + "</span>" : "");
+      grid.appendChild(cell);
+    }
+  }
+  document.getElementById("calPrev").addEventListener("click", function () {
+    calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCal();
+  });
+  document.getElementById("calNext").addEventListener("click", function () {
+    calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCal();
+  });
+
+  /* ---------- storage check & backup ---------- */
+  var storageOk = false;
+  try {
+    localStorage.setItem("__sb_test", "1");
+    storageOk = localStorage.getItem("__sb_test") === "1";
+    localStorage.removeItem("__sb_test");
+  } catch (e) {}
+  (function () {
+    var ua = navigator.userAgent || "";
+    var inApp = /Line\/|Instagram|FBAN|FBAV|MicroMessenger/i.test(ua);
+    var warn = document.getElementById("storageWarn");
+    if (!storageOk) {
+      warn.innerHTML = "⚠ この開き方では<b>記録が保存できません</b>。リンクをSafariやChromeで開き直してから使ってください。";
+      warn.style.display = "block";
+    } else if (inApp) {
+      warn.innerHTML = "⚠ LINEなどアプリ内のブラウザで開いています。ここで付けた記録は<b>あとで消えることがあります</b>。メニューから「Safariで開く」「他のブラウザで開く」を選んで、そちらを使ってください（記録の引っこしは、下の「データのバックアップ」でコードを出してコピー → Safari側で復元）。";
+      warn.style.display = "block";
+    }
+  })();
+  document.getElementById("bkExport").addEventListener("click", function () {
+    var code = JSON.stringify(state);
+    var area = document.getElementById("bkArea");
+    area.value = code;
+    area.focus();
+    area.select();
+    area.setSelectionRange(0, code.length);
+    var copied = false;
+    try { copied = document.execCommand("copy"); } catch (e) {}
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).catch(function () {});
+      copied = true;
+    }
+    document.getElementById("bkStatus").textContent = copied
+      ? "コピーしました！LINEのKeepメモやメールに貼って保存しておきましょう"
+      : "コードを長押しでコピーして、LINEのKeepメモなどに保存しておきましょう";
+  });
+  document.getElementById("bkImport").addEventListener("click", function () {
+    var st = document.getElementById("bkStatus");
+    var raw = document.getElementById("bkArea").value.trim();
+    if (!raw) { st.textContent = "先に、保存しておいたコードを上のらんに貼りつけてください"; return; }
+    try {
+      var s = JSON.parse(raw);
+      if (!s || typeof s !== "object" || !Array.isArray(s.subjects) || !Array.isArray(s.entries)) throw new Error("bad");
+      if (!confirm("今の記録をバックアップの内容に置きかえます。よろしいですか？")) return;
+      state.subjects = s.subjects;
+      state.entries = s.entries;
+      state.tasks = Array.isArray(s.tasks) ? s.tasks : [];
+      state.rewardUses = Array.isArray(s.rewardUses) ? s.rewardUses : [];
+      save(); renderAll();
+      document.getElementById("bkArea").value = "";
+      st.textContent = "";
+      toast("❀ 復元完了！おかえりなさい");
+    } catch (e) {
+      st.textContent = "コードが読み取れませんでした。コピーしたコード全体（{ から } まで）を貼りつけてください";
+    }
+  });
+
+  /* ---------- init ---------- */
+  var dows = ["日", "月", "火", "水", "木", "金", "土"];
+  document.getElementById("todayDate").textContent =
+    today.getFullYear() + "年" + (today.getMonth() + 1) + "月" + today.getDate() + "日（" + dows[today.getDay()] + "）";
+
+  function renderAll() { renderHud(); renderLevel(); renderReward(); renderSubjects(); renderTasks(); renderCal(); renderAch(); }
+  save();
+  renderAll();
+})();
+</script>
+
+</body>
+</html>

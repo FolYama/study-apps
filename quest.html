@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌻</text></svg>">
+<title>STUDY QUEST — 勉強トラッカー</title>
+<style>
+  :root {
+    --bg: #0d1220;
+    --bg-2: #131a2c;
+    --panel: #1a2338;
+    --panel-2: #202b45;
+    --line: #2c3a5c;
+    --ink: #e6ecf7;
+    --ink-soft: #8b98b8;
+    --cyan: #3fd4e0;
+    --cyan-deep: #1b9aa8;
+    --gold: #f2b135;
+    --gold-soft: #b98416;
+    --green: #46c583;
+    --red: #f06a5a;
+    --heat-0: #1c2540;
+    --heat-1: #17454f;
+    --heat-2: #1b6c78;
+    --heat-3: #2aa5b3;
+    --heat-4: #3fd4e0;
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+  /* ゲームHUDとしてダーク単一テーマにコミット */
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(ellipse 900px 500px at 70% -100px, rgba(63, 212, 224, 0.08), transparent),
+      radial-gradient(ellipse 700px 400px at 10% 30%, rgba(242, 177, 53, 0.04), transparent),
+      var(--bg);
+    color: var(--ink);
+    font-family: "Yu Gothic UI", "BIZ UDPGothic", "Meiryo", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 16px 16px 72px; }
+
+  .hud-label {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
+    color: var(--ink-soft); text-transform: uppercase;
+  }
+
+  /* ---------- header / status ---------- */
+  header.top { padding: 14px 4px 4px; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+  .app-title {
+    margin: 0; font-size: 1.35rem; font-weight: 900; letter-spacing: 0.12em;
+    background: linear-gradient(90deg, var(--cyan) 0%, #9be8ef 60%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .today-date { font-size: 0.8rem; color: var(--ink-soft); }
+
+  .status-card {
+    margin-top: 12px; background: linear-gradient(160deg, var(--panel) 0%, var(--bg-2) 100%);
+    border: 1px solid var(--line); border-radius: 16px; padding: 16px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .status-card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+  .status-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .lv-badge {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2c3a5c, var(--bg-2));
+    border: 2px solid var(--cyan);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    flex-shrink: 0; box-shadow: 0 0 14px rgba(63, 212, 224, 0.35);
+  }
+  .lv-badge .lv { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--cyan); font-weight: 700; line-height: 1; }
+  .lv-badge .n { font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .status-main { flex: 1; min-width: 200px; }
+  .title-chip {
+    display: inline-block; font-size: 0.78rem; font-weight: 800;
+    color: var(--gold); border: 1px solid var(--gold-soft); border-radius: 999px;
+    padding: 1px 10px; margin-bottom: 6px; letter-spacing: 0.06em;
+  }
+  .xp-bar-wrap { display: flex; align-items: center; gap: 10px; }
+  .xp-bar {
+    flex: 1; height: 12px; border-radius: 999px; background: var(--heat-0);
+    border: 1px solid var(--line); overflow: hidden;
+  }
+  .xp-bar > i {
+    display: block; height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--cyan-deep), var(--cyan));
+    box-shadow: 0 0 8px rgba(63, 212, 224, 0.5);
+    transition: width 0.6s ease;
+  }
+  .xp-nums { font-size: 0.72rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .streak-box { text-align: center; flex-shrink: 0; }
+  .streak-box .num {
+    font-size: 1.7rem; font-weight: 900; font-variant-numeric: tabular-nums;
+    color: var(--gold); line-height: 1.1; text-shadow: 0 0 12px rgba(242, 177, 53, 0.4);
+  }
+  .streak-box .lbl { font-size: 0.65rem; color: var(--ink-soft); letter-spacing: 0.1em; }
+
+  .today-line {
+    display: flex; gap: 18px; margin-top: 12px; padding-top: 12px;
+    border-top: 1px dashed var(--line); flex-wrap: wrap;
+  }
+  .t-stat .v { font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .t-stat .v small { font-size: 0.75rem; font-weight: 600; color: var(--ink-soft); }
+  .t-stat .k { font-size: 0.68rem; color: var(--ink-soft); }
+
+  .habit-row { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .habit-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .habit-nums { font-size: 0.8rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--green); }
+  .habit-bar {
+    height: 10px; border-radius: 999px; background: var(--heat-0);
+    border: 1px solid var(--line); overflow: hidden;
+  }
+  .habit-bar > i {
+    display: block; height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #2e9e6b, var(--green));
+    box-shadow: 0 0 8px rgba(70, 197, 131, 0.45);
+    transition: width 0.6s ease;
+  }
+  .habit-note { font-size: 0.68rem; color: var(--ink-soft); margin-top: 5px; }
+
+  /* ---------- play time wallet ---------- */
+  .reward-card {
+    margin-top: 12px;
+    background: linear-gradient(160deg, #241d10 0%, var(--bg-2) 70%);
+    border: 1px solid var(--gold-soft); border-radius: 16px; padding: 16px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .reward-card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .reward-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .reward-balance { text-align: center; flex-shrink: 0; }
+  .reward-balance .num {
+    font-size: 2.2rem; font-weight: 900; font-variant-numeric: tabular-nums;
+    color: var(--gold); line-height: 1.1; text-shadow: 0 0 16px rgba(242, 177, 53, 0.45);
+  }
+  .reward-balance .num small { font-size: 0.9rem; font-weight: 700; }
+  .reward-balance .lbl { font-size: 0.65rem; color: var(--ink-soft); letter-spacing: 0.14em; }
+  .reward-main { flex: 1; min-width: 220px; }
+  .reward-rate { font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 8px; }
+  .reward-rate b { color: var(--gold); }
+  .reward-use { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .chip-btn {
+    background: transparent; border: 1px solid var(--gold-soft); color: var(--gold);
+    border-radius: 999px; padding: 7px 16px; font-size: 0.85rem; font-weight: 800;
+    cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  .chip-btn:hover { background: rgba(242, 177, 53, 0.12); }
+  .chip-btn:active { transform: translateY(1px); }
+  .reward-today { font-size: 0.72rem; color: var(--ink-soft); margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .reward-empty-msg { font-size: 0.8rem; color: var(--ink-soft); margin-top: 6px; }
+  .reward-empty-msg b { color: var(--cyan); }
+
+  /* ---------- storage warn / backup ---------- */
+  .storage-warn {
+    margin-top: 12px; padding: 10px 14px; border-radius: 12px;
+    background: rgba(240, 106, 90, 0.12); border: 1px solid var(--red);
+    color: var(--ink); font-size: 0.82rem; line-height: 1.55;
+  }
+  .storage-warn b { color: var(--red); }
+  .backup-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px; margin-top: 12px;
+  }
+  .backup-note { font-size: 0.75rem; color: var(--ink-soft); margin: 0 0 10px; line-height: 1.6; }
+  .backup-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  #bkArea {
+    width: 100%; min-height: 84px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg-2); color: var(--ink); font-size: 0.68rem;
+    font-family: Consolas, monospace; padding: 8px; resize: vertical;
+  }
+  .bk-status { font-size: 0.75rem; color: var(--green); margin-top: 8px; min-height: 1.2em; }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 30px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 0 2px 2px; }
+  .sec-head h2 { margin: 0; font-size: 1rem; font-weight: 900; letter-spacing: 0.06em; }
+  .sec-head h2::before { content: "▸ "; color: var(--cyan); }
+  .sec-sub { font-size: 0.72rem; color: var(--ink-soft); }
+
+  /* ---------- daily quests ---------- */
+  .quest-list { display: grid; gap: 8px; margin-top: 10px; }
+  .quest {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 10px 14px;
+  }
+  .quest.clear { border-color: var(--green); }
+  .quest .q-ico {
+    width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--heat-0); font-size: 1rem;
+  }
+  .quest.clear .q-ico { background: rgba(70, 197, 131, 0.15); }
+  .quest .q-body { flex: 1; min-width: 0; }
+  .quest .q-name { font-weight: 800; font-size: 0.9rem; }
+  .quest .q-req { font-size: 0.75rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .quest .q-state { font-size: 0.78rem; font-weight: 900; letter-spacing: 0.1em; white-space: nowrap; }
+  .quest.clear .q-state { color: var(--green); }
+  .quest:not(.clear) .q-state { color: var(--ink-soft); }
+  .allclear {
+    margin-top: 10px; text-align: center; padding: 10px; border-radius: 12px;
+    background: linear-gradient(90deg, rgba(70,197,131,0.12), rgba(63,212,224,0.12));
+    border: 1px solid var(--green); font-weight: 900; letter-spacing: 0.14em;
+    color: var(--green); font-size: 0.9rem;
+  }
+
+  /* ---------- homework cards ---------- */
+  .hw-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px; margin-top: 12px; box-shadow: var(--shadow);
+  }
+  .hw-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .hw-name { font-size: 1rem; font-weight: 800; margin: 0; }
+  .hw-deadline { font-size: 0.74rem; color: var(--ink-soft); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .hw-deadline.warn { color: var(--red); font-weight: 700; }
+  .del-btn {
+    background: none; border: none; color: var(--ink-soft);
+    font-size: 0.72rem; cursor: pointer; padding: 4px 6px; border-radius: 8px; font-family: inherit;
+  }
+  .del-btn:hover { color: var(--red); background: var(--heat-0); }
+
+  .progress-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .bar {
+    flex: 1; height: 14px; border-radius: 4px; background: var(--heat-0);
+    overflow: hidden; border: 1px solid var(--line); position: relative;
+  }
+  .bar > i {
+    display: block; height: 100%;
+    background: repeating-linear-gradient(-45deg, var(--cyan-deep) 0 8px, var(--cyan) 8px 16px);
+    transition: width 0.5s ease;
+  }
+  .bar > i.full { background: repeating-linear-gradient(-45deg, #2e9e6b 0 8px, var(--green) 8px 16px); }
+  .pct { font-weight: 900; font-variant-numeric: tabular-nums; font-size: 0.9rem; width: 3.1em; text-align: right; }
+  .hw-nums { display: flex; gap: 14px; margin-top: 6px; font-size: 0.78rem; color: var(--ink-soft); flex-wrap: wrap; }
+  .hw-nums b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .log-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .log-row label { font-size: 0.72rem; color: var(--ink-soft); display: grid; gap: 3px; }
+  .log-row input[type="number"] {
+    width: 84px; padding: 8px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg-2); color: var(--ink);
+    font-size: 1rem; font-family: inherit; font-variant-numeric: tabular-nums;
+  }
+  input:focus { outline: 2px solid var(--cyan); outline-offset: 1px; border-color: var(--cyan); }
+
+  button.primary {
+    background: linear-gradient(180deg, var(--cyan), var(--cyan-deep)); color: #06121a;
+    border: none; padding: 9px 20px; border-radius: 10px;
+    font-size: 0.9rem; font-weight: 900; font-family: inherit; letter-spacing: 0.04em;
+    cursor: pointer; box-shadow: 0 0 10px rgba(63, 212, 224, 0.25);
+  }
+  button.primary:active { transform: translateY(1px); }
+
+  .done-banner {
+    margin-top: 12px; padding: 9px 12px; border-radius: 10px;
+    border: 1px solid var(--gold); color: var(--gold);
+    font-weight: 900; font-size: 0.85rem; text-align: center; letter-spacing: 0.12em;
+    background: rgba(242, 177, 53, 0.08);
+  }
+
+  /* ---------- add form ---------- */
+  details.add-hw { margin-top: 12px; }
+  details.add-hw summary {
+    cursor: pointer; font-weight: 800; font-size: 0.85rem; color: var(--cyan);
+    padding: 8px 4px; list-style: none; letter-spacing: 0.04em;
+  }
+  details.add-hw summary::-webkit-details-marker { display: none; }
+  details.add-hw summary::before { content: "＋ "; }
+  .add-form {
+    background: var(--panel); border: 1px dashed var(--line); border-radius: 14px;
+    padding: 14px; display: grid; gap: 10px;
+  }
+  .add-form label { font-size: 0.75rem; font-weight: 700; color: var(--ink-soft); display: grid; gap: 4px; }
+  .add-form input {
+    padding: 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--bg-2); color: var(--ink); font-size: 1rem; font-family: inherit;
+    color-scheme: dark;
+  }
+
+  /* ---------- weekly quests ---------- */
+  .task-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+  .task-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 10px 14px;
+  }
+  .task-item input[type="checkbox"] {
+    width: 20px; height: 20px; accent-color: var(--green); cursor: pointer; flex-shrink: 0;
+  }
+  .task-item .txt { flex: 1; font-size: 0.9rem; font-weight: 600; }
+  .task-item.done { border-color: var(--green); }
+  .task-item.done .txt { text-decoration: line-through; color: var(--ink-soft); }
+  .task-item .xp-tag { font-size: 0.68rem; color: var(--gold); font-weight: 800; white-space: nowrap; }
+  .task-add { display: flex; gap: 8px; margin-top: 10px; }
+  .task-add input {
+    flex: 1; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    font-size: 0.9rem; font-family: inherit;
+  }
+
+  /* ---------- heatmap calendar ---------- */
+  .cal-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px; margin-top: 12px; box-shadow: var(--shadow);
+  }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .cal-nav b { font-size: 0.9rem; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+  .cal-nav button {
+    background: var(--heat-0); border: 1px solid var(--line); border-radius: 8px;
+    width: 32px; height: 32px; font-size: 0.9rem; cursor: pointer; color: var(--ink); font-family: inherit;
+  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { text-align: center; font-size: 0.65rem; color: var(--ink-soft); font-weight: 700; padding: 2px 0; }
+  .cal-dow.sun { color: var(--red); }
+  .cal-dow.sat { color: var(--cyan); }
+  .cal-cell {
+    aspect-ratio: 1; border-radius: 6px; background: var(--heat-0);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 0.68rem; color: var(--ink-soft); font-variant-numeric: tabular-nums;
+    border: 1px solid transparent;
+  }
+  .cal-cell.h1 { background: var(--heat-1); color: #cfe9ec; }
+  .cal-cell.h2 { background: var(--heat-2); color: #eafcfd; }
+  .cal-cell.h3 { background: var(--heat-3); color: #06222a; }
+  .cal-cell.h4 { background: var(--heat-4); color: #06222a; font-weight: 800; }
+  .cal-cell.empty { background: transparent; }
+  .cal-cell.today { border-color: var(--gold); }
+  .cal-cell .min { font-size: 0.55rem; line-height: 1.1; opacity: 0.85; }
+  .cal-legend {
+    display: flex; align-items: center; gap: 5px; justify-content: flex-end;
+    margin-top: 8px; font-size: 0.62rem; color: var(--ink-soft);
+  }
+  .cal-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  /* ---------- achievements ---------- */
+  .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+  .ach {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 12px; display: flex; gap: 10px; align-items: center;
+  }
+  .ach .ico { font-size: 1.2rem; filter: grayscale(1); opacity: 0.35; }
+  .ach .nm { font-size: 0.75rem; font-weight: 800; color: var(--ink-soft); }
+  .ach .ds { font-size: 0.65rem; color: var(--ink-soft); opacity: 0.8; }
+  .ach.got { border-color: var(--gold-soft); background: linear-gradient(160deg, var(--panel), rgba(242, 177, 53, 0.07)); }
+  .ach.got .ico { filter: none; opacity: 1; }
+  .ach.got .nm { color: var(--gold); }
+
+  .empty-note {
+    text-align: center; color: var(--ink-soft); font-size: 0.82rem;
+    padding: 18px 10px; border: 1px dashed var(--line); border-radius: 14px; margin-top: 10px;
+  }
+  .xp-note { font-size: 0.68rem; color: var(--ink-soft); margin-top: 8px; text-align: right; }
+
+  /* XP toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+    background: var(--panel-2); border: 1px solid var(--gold); color: var(--gold);
+    padding: 10px 22px; border-radius: 999px; font-weight: 900; letter-spacing: 0.08em;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s;
+    box-shadow: 0 0 18px rgba(242, 177, 53, 0.3); z-index: 50; font-size: 0.95rem;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar > i, .xp-bar > i, .toast { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="storage-warn" id="storageWarn" style="display:none"></div>
+  <header class="top">
+    <div>
+      <h1 class="app-title">STUDY QUEST</h1>
+      <div class="today-date" id="todayDate"></div>
+    </div>
+  </header>
+
+  <div class="status-card">
+    <div class="status-row">
+      <div class="lv-badge"><span class="lv">LV</span><span class="n" id="lvNum">1</span></div>
+      <div class="status-main">
+        <span class="title-chip" id="lvTitle">ルーキー</span>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar"><i id="xpBar" style="width:0%"></i></div>
+          <span class="xp-nums" id="xpNums">0 / 100 XP</span>
+        </div>
+      </div>
+      <div class="streak-box">
+        <div class="num" id="streakNum">0</div>
+        <div class="lbl">DAY STREAK</div>
+      </div>
+    </div>
+    <div class="today-line">
+      <div class="t-stat"><div class="v" id="todayMinutes">0<small> 分</small></div><div class="k">今日の勉強時間</div></div>
+      <div class="t-stat"><div class="v" id="todayPages">0<small> ページ</small></div><div class="k">今日の進み</div></div>
+      <div class="t-stat"><div class="v" id="todayXp">+0<small> XP</small></div><div class="k">今日の獲得XP</div></div>
+    </div>
+    <div class="habit-row">
+      <div class="habit-head">
+        <span class="hud-label">習慣化メーター</span>
+        <span class="habit-nums" id="habitNums">0 / 66日</span>
+      </div>
+      <div class="habit-bar"><i id="habitBar" style="width:0%"></i></div>
+      <div class="habit-note" id="habitNote">研究では平均66日で習慣になる。1日抜けてもOK — 勉強した日の累計でカウント</div>
+    </div>
+  </div>
+
+  <div class="reward-card">
+    <div class="reward-row">
+      <div class="reward-balance">
+        <div class="num" id="rewardBalance">0<small> 分</small></div>
+        <div class="lbl">PLAY TIME 残高</div>
+      </div>
+      <div class="reward-main">
+        <div class="reward-rate">勉強 <b>2時間</b> → スマホ・ゲーム <b>40分</b> チャージ（使えるのは1日 <b>60分</b> まで）</div>
+        <div class="reward-use" id="rewardUse">
+          <button class="chip-btn" data-use="15">▶ 15分使う</button>
+          <button class="chip-btn" data-use="30">▶ 30分使う</button>
+          <button class="chip-btn" data-use="60">▶ 60分使う</button>
+        </div>
+        <div class="reward-today" id="rewardToday"></div>
+        <div class="reward-empty-msg" id="rewardMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>DAILY QUEST</h2>
+      <span class="sec-sub">期限から自動計算した今日の目標</span>
+    </div>
+    <div class="quest-list" id="questList"></div>
+    <div id="allClearWrap"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>課題の進捗</h2>
+    </div>
+    <div id="hwList"></div>
+    <details class="add-hw" id="addHwDetails">
+      <summary>課題を追加する</summary>
+      <div class="add-form">
+        <label>課題名
+          <input type="text" id="hwName" placeholder="例：数学 問題集">
+        </label>
+        <label>全体のページ数
+          <input type="number" id="hwTotal" min="1" placeholder="例：80">
+        </label>
+        <label>期限
+          <input type="date" id="hwDeadline">
+        </label>
+        <button class="primary" id="hwAddBtn">追加する</button>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>WEEKLY QUEST</h2>
+      <span class="sec-sub" id="weekRange"></span>
+    </div>
+    <ul class="task-list" id="taskList"></ul>
+    <div class="task-add">
+      <input type="text" id="taskInput" placeholder="例：英単語 100個 / 模試の復習">
+      <button class="primary" id="taskAddBtn">追加</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>ACTIVITY</h2>
+      <span class="sec-sub">勉強時間ヒートマップ</span>
+    </div>
+    <div class="cal-card">
+      <div class="cal-nav">
+        <button id="calPrev" aria-label="前の月">◀</button>
+        <b id="calTitle"></b>
+        <button id="calNext" aria-label="次の月">▶</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        少 <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> 多
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>実績</h2>
+      <span class="sec-sub" id="achCount"></span>
+    </div>
+    <div class="ach-grid" id="achGrid"></div>
+    <div class="xp-note">XP：勉強1分=2 ／ 1ページ=10 ／ 勉強した日=+20 ／ WEEKLY QUEST完了=+30</div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>データのバックアップ</h2>
+    </div>
+    <div class="backup-card">
+      <p class="backup-note">記録はこの端末のブラウザの中に保存される。開き方を変えたりスマホの設定によって消えることがあるから、<b>週1回くらいバックアップコードを保存</b>しておくと安心。いつも同じブラウザ（ホーム画面のショートカット）から開くのも大事。</p>
+      <div class="backup-btns">
+        <button class="primary" id="bkExport">バックアップコードを出す</button>
+        <button class="primary" id="bkImport">コードから復元する</button>
+      </div>
+      <textarea id="bkArea" placeholder="「バックアップコードを出す」→ ここに出たコードをコピーして、LINEのKeepメモなどに貼って保存。&#10;復元するときは、保存したコードをここに貼りつけて「コードから復元する」。"></textarea>
+      <div class="bk-status" id="bkStatus"></div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var KEY = "benkyo-tracker-v1";
+  var state = load();
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        return { homeworks: s.homeworks || [], entries: s.entries || [], tasks: s.tasks || [], rewardUses: s.rewardUses || [] };
+      }
+    } catch (e) {}
+    return { homeworks: [], entries: [], tasks: [], rewardUses: [] };
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function uid() { return "id" + Math.random().toString(36).slice(2, 10); }
+
+  function ymd(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function parseYmd(s) {
+    var p = s.split("-");
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+  var today = new Date();
+  var todayStr = ymd(today);
+
+  /* ---------- derived basics ---------- */
+  function hwPagesDone(hw) {
+    return state.entries.filter(function (e) { return e.hwId === hw.id; })
+      .reduce(function (s, e) { return s + (e.pages || 0); }, 0);
+  }
+  function entriesOn(dateStr) {
+    return state.entries.filter(function (e) { return e.date === dateStr; });
+  }
+  function minutesOn(dateStr) {
+    return entriesOn(dateStr).reduce(function (s, e) { return s + (e.minutes || 0); }, 0);
+  }
+  function studiedDates() {
+    var set = {};
+    state.entries.forEach(function (e) {
+      if ((e.pages || 0) > 0 || (e.minutes || 0) > 0) set[e.date] = true;
+    });
+    return set;
+  }
+  function calcStreak() {
+    var set = studiedDates();
+    var n = 0;
+    var d = new Date(today);
+    if (!set[ymd(d)]) d.setDate(d.getDate() - 1); // 今日まだでも昨日までの連続は保つ
+    while (set[ymd(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  function daysLeft(deadlineStr) {
+    var dl = parseYmd(deadlineStr);
+    var t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return Math.floor((dl - t0) / 86400000) + 1; // 今日を含む残り日数
+  }
+  function quotaFor(hw) {
+    var remain = hw.total - hwPagesDone(hw);
+    if (remain <= 0) return { type: "done" };
+    var dl = daysLeft(hw.deadline);
+    if (dl <= 0) return { type: "late", remain: remain };
+    return { type: "quota", perDay: Math.ceil(remain / dl), remain: remain, days: dl };
+  }
+  function todayPagesFor(hwId) {
+    return entriesOn(todayStr).filter(function (e) { return e.hwId === hwId; })
+      .reduce(function (s, e) { return s + (e.pages || 0); }, 0);
+  }
+
+  /* ---------- XP / level ---------- */
+  function totalStats() {
+    var mins = 0, pages = 0;
+    state.entries.forEach(function (e) { mins += e.minutes || 0; pages += e.pages || 0; });
+    var days = Object.keys(studiedDates()).length;
+    var tasksDone = state.tasks.filter(function (t) { return t.done; }).length;
+    return { mins: mins, pages: pages, days: days, tasksDone: tasksDone };
+  }
+  function calcXp(st) {
+    return st.mins * 2 + st.pages * 10 + st.days * 20 + st.tasksDone * 30;
+  }
+  function xpOn(dateStr) {
+    var mins = 0, pages = 0;
+    entriesOn(dateStr).forEach(function (e) { mins += e.minutes || 0; pages += e.pages || 0; });
+    var base = mins * 2 + pages * 10;
+    if (mins > 0 || pages > 0) base += 20;
+    return base;
+  }
+  function needFor(lv) { return 100 + (lv - 1) * 50; }
+  function levelFromXp(xp) {
+    var lv = 1, rest = xp;
+    while (rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
+    return { lv: lv, cur: rest, need: needFor(lv) };
+  }
+  var TITLES = [
+    [30, "レジェンド"], [20, "マスター"], [15, "エリート"],
+    [10, "ストライカー"], [5, "チャレンジャー"], [1, "ルーキー"]
+  ];
+  function titleFor(lv) {
+    for (var i = 0; i < TITLES.length; i++) if (lv >= TITLES[i][0]) return TITLES[i][1];
+    return "ルーキー";
+  }
+
+  /* ---------- play time wallet ---------- */
+  var REWARD_RATE = 3; // 勉強3分 → プレイ1分（2時間→40分）
+  var PLAY_CAP = 60;   // 1日の使用上限（東北大調査: 娯楽利用1時間超で学力に悪影響）
+  function rewardEarned() {
+    var mins = state.entries.reduce(function (s, e) { return s + (e.minutes || 0); }, 0);
+    return Math.floor(mins / REWARD_RATE);
+  }
+  function rewardUsed() {
+    return state.rewardUses.reduce(function (s, u) { return s + (u.minutes || 0); }, 0);
+  }
+  function rewardBalance() {
+    return rewardEarned() - rewardUsed();
+  }
+  function renderReward() {
+    var bal = rewardBalance();
+    document.getElementById("rewardBalance").innerHTML = bal + "<small> 分</small>";
+    var todayMins = minutesOn(todayStr);
+    var usedToday = state.rewardUses.filter(function (u) { return u.date === todayStr; })
+      .reduce(function (s, u) { return s + u.minutes; }, 0);
+    var parts = [];
+    parts.push("今日の勉強でチャージ +" + Math.floor(todayMins / REWARD_RATE) + "分");
+    if (usedToday > 0) parts.push("今日使った分 −" + usedToday + "分");
+    document.getElementById("rewardToday").textContent = parts.join(" ／ ");
+    var msg = "";
+    if (usedToday >= PLAY_CAP) {
+      msg = "今日の上限 " + PLAY_CAP + "分 に到達。続きは明日！（1時間超は学力に悪影響という研究結果）";
+    } else if (bal <= 0) {
+      msg = "残高ゼロ。<b>先に勉強してチャージ</b>しよう（勉強" + REWARD_RATE + "分で+1分）";
+    } else if (bal < 15) {
+      msg = "あと勉強" + ((15 - bal) * REWARD_RATE) + "分で、15分プレイできる";
+    }
+    document.getElementById("rewardMsg").innerHTML = msg;
+    document.querySelectorAll("#rewardUse .chip-btn").forEach(function (b) {
+      var amt = parseInt(b.getAttribute("data-use"), 10);
+      b.disabled = bal < amt || usedToday + amt > PLAY_CAP;
+      b.style.opacity = b.disabled ? 0.35 : 1;
+      b.style.cursor = b.disabled ? "default" : "pointer";
+    });
+  }
+  document.querySelectorAll("#rewardUse .chip-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var amount = parseInt(b.getAttribute("data-use"), 10);
+      var bal = rewardBalance();
+      var usedToday = state.rewardUses.filter(function (u) { return u.date === todayStr; })
+        .reduce(function (s, u) { return s + u.minutes; }, 0);
+      if (usedToday + amount > PLAY_CAP) {
+        toast("⚠ 1日の上限は" + PLAY_CAP + "分まで！続きは明日");
+        return;
+      }
+      if (bal < amount) {
+        toast("⚠ 残高不足！勉強" + ((amount - bal) * REWARD_RATE) + "分でチャージできる");
+        return;
+      }
+      if (!confirm("プレイタイムを " + amount + "分 使いますか？（残り " + (bal - amount) + "分になります）")) return;
+      state.rewardUses.push({ id: uid(), date: todayStr, minutes: amount });
+      save(); renderAll();
+      toast("🎮 プレイタイム " + amount + "分 スタート！");
+    });
+  });
+
+  /* ---------- achievements ---------- */
+  function achievements() {
+    var st = totalStats();
+    var streak = calcStreak();
+    var hwDone = state.homeworks.filter(function (h) { return hwPagesDone(h) >= h.total; }).length;
+    var maxDayMin = 0;
+    Object.keys(studiedDates()).forEach(function (d) {
+      var m = minutesOn(d); if (m > maxDayMin) maxDayMin = m;
+    });
+    return [
+      { ico: "⚔️", nm: "初陣", ds: "はじめて記録した", got: st.days >= 1 },
+      { ico: "🔥", nm: "三日坊主卒業", ds: "3日連続で勉強", got: streak >= 3 },
+      { ico: "🛡️", nm: "一週間の壁", ds: "7日連続で勉強", got: streak >= 7 },
+      { ico: "⚡", nm: "21日の壁", ds: "21日連続（俗説の習慣化ライン）", got: streak >= 21 },
+      { ico: "🌱", nm: "習慣化スタート", ds: "累計18日勉強（研究の最短ライン）", got: st.days >= 18 },
+      { ico: "🌿", nm: "習慣化ロード", ds: "累計30日勉強", got: st.days >= 30 },
+      { ico: "🌳", nm: "習慣化マスター", ds: "累計66日勉強（研究の平均日数）", got: st.days >= 66 },
+      { ico: "⏱️", nm: "累計10時間", ds: "勉強時間 合計10時間", got: st.mins >= 600 },
+      { ico: "⏳", nm: "累計30時間", ds: "勉強時間 合計30時間", got: st.mins >= 1800 },
+      { ico: "🧠", nm: "累計50時間", ds: "勉強時間 合計50時間", got: st.mins >= 3000 },
+      { ico: "💥", nm: "集中モード", ds: "1日で2時間以上", got: maxDayMin >= 120 },
+      { ico: "📕", nm: "1冊クリア", ds: "課題を1つ完了", got: hwDone >= 1 },
+      { ico: "🏆", nm: "全課題制覇", ds: "登録した課題を全部完了", got: state.homeworks.length > 0 && hwDone === state.homeworks.length },
+      { ico: "🎯", nm: "タスクハンター", ds: "WEEKLY QUESTを10個完了", got: st.tasksDone >= 10 }
+    ];
+  }
+
+  /* ---------- toast ---------- */
+  var toastTimer = null;
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2200);
+  }
+
+  /* ---------- render: status ---------- */
+  function renderStatus() {
+    var xp = calcXp(totalStats());
+    var l = levelFromXp(xp);
+    document.getElementById("lvNum").textContent = l.lv;
+    document.getElementById("lvTitle").textContent = titleFor(l.lv);
+    document.getElementById("xpBar").style.width = Math.round((l.cur / l.need) * 100) + "%";
+    document.getElementById("xpNums").textContent = l.cur + " / " + l.need + " XP";
+    document.getElementById("streakNum").textContent = calcStreak();
+
+    var mins = minutesOn(todayStr);
+    var pages = entriesOn(todayStr).reduce(function (s, e) { return s + (e.pages || 0); }, 0);
+    document.getElementById("todayMinutes").innerHTML = mins + "<small> 分</small>";
+    document.getElementById("todayPages").innerHTML = pages + "<small> ページ</small>";
+    document.getElementById("todayXp").innerHTML = "+" + xpOn(todayStr) + "<small> XP</small>";
+
+    var habitDays = Object.keys(studiedDates()).length;
+    var habitPct = Math.min(100, Math.round((habitDays / 66) * 100));
+    document.getElementById("habitBar").style.width = habitPct + "%";
+    if (habitDays >= 66) {
+      document.getElementById("habitNums").textContent = habitDays + "日 — 習慣化達成！";
+      document.getElementById("habitNote").textContent = "勉強はもう君の習慣。この調子で維持しよう";
+    } else {
+      document.getElementById("habitNums").textContent = habitDays + " / 66日";
+    }
+  }
+
+  /* ---------- render: daily quests ---------- */
+  function renderQuests() {
+    var wrap = document.getElementById("questList");
+    var acWrap = document.getElementById("allClearWrap");
+    wrap.innerHTML = ""; acWrap.innerHTML = "";
+    var active = state.homeworks.filter(function (hw) { return quotaFor(hw).type !== "done"; });
+    if (state.homeworks.length === 0) {
+      wrap.innerHTML = '<div class="empty-note">課題を登録すると、今日のクエストがここに出ます</div>';
+      return;
+    }
+    if (active.length === 0) {
+      wrap.innerHTML = '<div class="empty-note">登録した課題はすべて完了！🏆</div>';
+      return;
+    }
+    var allClear = true;
+    active.forEach(function (hw) {
+      var q = quotaFor(hw);
+      var done = todayPagesFor(hw.id);
+      var el = document.createElement("div");
+      var clear = false, req = "", stateTxt = "";
+      if (q.type === "late") {
+        req = "期限超過 — 残り" + q.remain + "ページ";
+        stateTxt = done > 0 ? "進行中" : "未着手";
+        allClear = false;
+      } else {
+        clear = done >= q.perDay;
+        req = "今日のノルマ " + Math.min(done, q.perDay) + " / " + q.perDay + " ページ";
+        stateTxt = clear ? "CLEAR" : (done > 0 ? "あと" + (q.perDay - done) + "ページ" : "未着手");
+        if (!clear) allClear = false;
+      }
+      el.className = "quest" + (clear ? " clear" : "");
+      el.innerHTML =
+        '<div class="q-ico">' + (clear ? "✅" : "📖") + "</div>" +
+        '<div class="q-body"><div class="q-name">' + esc(hw.name) + '</div><div class="q-req">' + req + "</div></div>" +
+        '<div class="q-state">' + stateTxt + "</div>";
+      wrap.appendChild(el);
+    });
+    if (allClear) {
+      acWrap.innerHTML = '<div class="allclear">★ ALL CLEAR — 今日のクエスト完了 ★</div>';
+    }
+  }
+
+  /* ---------- render: homeworks ---------- */
+  function renderHomeworks() {
+    var wrap = document.getElementById("hwList");
+    wrap.innerHTML = "";
+    if (state.homeworks.length === 0) {
+      wrap.innerHTML = '<div class="empty-note">「＋課題を追加する」から、課題名・ページ数・期限を登録しよう</div>';
+      return;
+    }
+    state.homeworks.forEach(function (hw) {
+      var done = hwPagesDone(hw);
+      var pct = Math.min(100, Math.round((done / hw.total) * 100));
+      var q = quotaFor(hw);
+      var dl = daysLeft(hw.deadline);
+      var dlDate = parseYmd(hw.deadline);
+      var dlLabel = (dlDate.getMonth() + 1) + "/" + dlDate.getDate();
+
+      var card = document.createElement("div");
+      card.className = "hw-card";
+
+      var deadlineHtml;
+      if (q.type === "done") {
+        deadlineHtml = '<div class="hw-deadline">期限 ' + dlLabel + "</div>";
+      } else if (dl <= 0) {
+        deadlineHtml = '<div class="hw-deadline warn">期限 ' + dlLabel + " — 超過中</div>";
+      } else if (dl <= 3) {
+        deadlineHtml = '<div class="hw-deadline warn">期限 ' + dlLabel + "（あと" + dl + "日！）</div>";
+      } else {
+        deadlineHtml = '<div class="hw-deadline">期限 ' + dlLabel + "（あと" + dl + "日）</div>";
+      }
+
+      card.innerHTML =
+        '<div class="hw-top"><div><h3 class="hw-name">' + esc(hw.name) + "</h3>" + deadlineHtml + "</div>" +
+        '<button class="del-btn" data-del="' + hw.id + '">削除</button></div>' +
+        '<div class="progress-row"><div class="bar"><i class="' + (pct >= 100 ? "full" : "") + '" style="width:' + pct + '%"></i></div>' +
+        '<div class="pct">' + pct + "%</div></div>" +
+        '<div class="hw-nums"><span><b>' + done + "</b> / " + hw.total + " ページ</span>" +
+        (q.type !== "done" ? "<span>残り <b>" + (hw.total - done) + "</b> ページ</span>" : "") +
+        (q.type === "quota" ? "<span>1日 <b>" + q.perDay + "</b> ページペース</span>" : "") +
+        "</div>" +
+        (q.type === "done"
+          ? '<div class="done-banner">QUEST COMPLETE — 全' + hw.total + "ページ完了</div>"
+          : '<div class="log-row">' +
+            '<label>今日やったページ数<input type="number" min="0" id="pg-' + hw.id + '" placeholder="0"></label>' +
+            '<label>かかった時間（分）<input type="number" min="0" id="mn-' + hw.id + '" placeholder="0"></label>' +
+            '<button class="primary" data-log="' + hw.id + '">記録する</button></div>');
+      wrap.appendChild(card);
+    });
+
+    wrap.querySelectorAll("[data-log]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-log");
+        var pages = parseInt(document.getElementById("pg-" + id).value, 10) || 0;
+        var mins = parseInt(document.getElementById("mn-" + id).value, 10) || 0;
+        if (pages <= 0 && mins <= 0) return;
+        var beforeXp = calcXp(totalStats());
+        var beforeLv = levelFromXp(beforeXp).lv;
+        var beforeAch = achievements().filter(function (a) { return a.got; }).length;
+        var beforeReward = rewardEarned();
+        state.entries.push({ id: uid(), hwId: id, date: todayStr, pages: pages, minutes: mins });
+        save();
+        var afterXp = calcXp(totalStats());
+        var afterLv = levelFromXp(afterXp).lv;
+        var afterAch = achievements().filter(function (a) { return a.got; }).length;
+        var charged = rewardEarned() - beforeReward;
+        renderAll();
+        var chargeTxt = charged > 0 ? " ／ 🎮 +" + charged + "分" : "";
+        if (afterLv > beforeLv) toast("🎉 LEVEL UP! → Lv." + afterLv + chargeTxt);
+        else if (afterAch > beforeAch) toast("🏅 実績解除！" + chargeTxt);
+        else toast("+" + (afterXp - beforeXp) + " XP" + chargeTxt);
+      });
+    });
+    wrap.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-del");
+        var hw = state.homeworks.find(function (h) { return h.id === id; });
+        if (!confirm("「" + hw.name + "」を削除しますか？記録も消えます。")) return;
+        state.homeworks = state.homeworks.filter(function (h) { return h.id !== id; });
+        state.entries = state.entries.filter(function (e) { return e.hwId !== id; });
+        save(); renderAll();
+      });
+    });
+  }
+
+  /* ---------- render: weekly tasks ---------- */
+  function weekRangeLabel() {
+    var d = new Date(today);
+    var day = (d.getDay() + 6) % 7; // 月曜はじまり
+    var mon = new Date(d); mon.setDate(d.getDate() - day);
+    var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    return (mon.getMonth() + 1) + "/" + mon.getDate() + " – " + (sun.getMonth() + 1) + "/" + sun.getDate();
+  }
+  function renderTasks() {
+    document.getElementById("weekRange").textContent = weekRangeLabel();
+    var ul = document.getElementById("taskList");
+    ul.innerHTML = "";
+    if (state.tasks.length === 0) {
+      ul.innerHTML = '<li class="empty-note">今週やることを追加しよう（完了で +30 XP）</li>';
+    }
+    state.tasks.forEach(function (t) {
+      var li = document.createElement("li");
+      li.className = "task-item" + (t.done ? " done" : "");
+      li.innerHTML =
+        '<input type="checkbox" ' + (t.done ? "checked" : "") + ' data-task="' + t.id + '" aria-label="完了">' +
+        '<span class="txt">' + esc(t.text) + "</span>" +
+        '<span class="xp-tag">+30 XP</span>' +
+        '<button class="del-btn" data-taskdel="' + t.id + '">削除</button>';
+      ul.appendChild(li);
+    });
+    ul.querySelectorAll("[data-task]").forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var t = state.tasks.find(function (x) { return x.id === cb.getAttribute("data-task"); });
+        var beforeLv = levelFromXp(calcXp(totalStats())).lv;
+        t.done = cb.checked;
+        save(); renderAll();
+        if (cb.checked) {
+          var afterLv = levelFromXp(calcXp(totalStats())).lv;
+          toast(afterLv > beforeLv ? "🎉 LEVEL UP! → Lv." + afterLv : "+30 XP");
+        }
+      });
+    });
+    ul.querySelectorAll("[data-taskdel]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        state.tasks = state.tasks.filter(function (x) { return x.id !== btn.getAttribute("data-taskdel"); });
+        save(); renderAll();
+      });
+    });
+  }
+
+  /* ---------- render: heatmap calendar ---------- */
+  var calYear = today.getFullYear(), calMonth = today.getMonth();
+  function heatClass(mins, studied) {
+    if (!studied) return "";
+    if (mins >= 120) return " h4";
+    if (mins >= 60) return " h3";
+    if (mins >= 30) return " h2";
+    return " h1";
+  }
+  function renderCal() {
+    document.getElementById("calTitle").textContent = calYear + "年" + (calMonth + 1) + "月";
+    var grid = document.getElementById("calGrid");
+    grid.innerHTML = "";
+    ["月", "火", "水", "木", "金", "土", "日"].forEach(function (w, i) {
+      var el = document.createElement("div");
+      el.className = "cal-dow" + (i === 5 ? " sat" : i === 6 ? " sun" : "");
+      el.textContent = w;
+      grid.appendChild(el);
+    });
+    var first = new Date(calYear, calMonth, 1);
+    var lead = (first.getDay() + 6) % 7;
+    var days = new Date(calYear, calMonth + 1, 0).getDate();
+    for (var i = 0; i < lead; i++) {
+      var e = document.createElement("div");
+      e.className = "cal-cell empty";
+      grid.appendChild(e);
+    }
+    var set = studiedDates();
+    for (var d = 1; d <= days; d++) {
+      var ds = calYear + "-" + String(calMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+      var mins = minutesOn(ds);
+      var cell = document.createElement("div");
+      cell.className = "cal-cell" + heatClass(mins, !!set[ds]) + (ds === todayStr ? " today" : "");
+      cell.innerHTML = "<span>" + d + "</span>" + (mins > 0 ? '<span class="min">' + mins + "分</span>" : "");
+      grid.appendChild(cell);
+    }
+  }
+  document.getElementById("calPrev").addEventListener("click", function () {
+    calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCal();
+  });
+  document.getElementById("calNext").addEventListener("click", function () {
+    calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCal();
+  });
+
+  /* ---------- render: achievements ---------- */
+  function renderAch() {
+    var list = achievements();
+    var grid = document.getElementById("achGrid");
+    grid.innerHTML = "";
+    list.forEach(function (a) {
+      var el = document.createElement("div");
+      el.className = "ach" + (a.got ? " got" : "");
+      el.innerHTML = '<span class="ico">' + a.ico + '</span><div><div class="nm">' + a.nm + '</div><div class="ds">' + a.ds + "</div></div>";
+      grid.appendChild(el);
+    });
+    var got = list.filter(function (a) { return a.got; }).length;
+    document.getElementById("achCount").textContent = got + " / " + list.length + " 解除";
+  }
+
+  /* ---------- add homework / task ---------- */
+  document.getElementById("hwAddBtn").addEventListener("click", function () {
+    var name = document.getElementById("hwName").value.trim();
+    var total = parseInt(document.getElementById("hwTotal").value, 10);
+    var deadline = document.getElementById("hwDeadline").value;
+    if (!name || !total || total < 1 || !deadline) {
+      alert("課題名・ページ数・期限をすべて入力してください");
+      return;
+    }
+    state.homeworks.push({ id: uid(), name: name, total: total, deadline: deadline });
+    document.getElementById("hwName").value = "";
+    document.getElementById("hwTotal").value = "";
+    document.getElementById("hwDeadline").value = "";
+    document.getElementById("addHwDetails").open = false;
+    save(); renderAll();
+    toast("📜 新クエスト受注：" + name);
+  });
+
+  function addTask() {
+    var input = document.getElementById("taskInput");
+    var text = input.value.trim();
+    if (!text) return;
+    state.tasks.push({ id: uid(), text: text, done: false });
+    input.value = "";
+    save(); renderTasks();
+  }
+  document.getElementById("taskAddBtn").addEventListener("click", addTask);
+  document.getElementById("taskInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") addTask();
+  });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  /* ---------- storage check & backup ---------- */
+  var storageOk = false;
+  try {
+    localStorage.setItem("__sq_test", "1");
+    storageOk = localStorage.getItem("__sq_test") === "1";
+    localStorage.removeItem("__sq_test");
+  } catch (e) {}
+  (function () {
+    var ua = navigator.userAgent || "";
+    var inApp = /Line\/|Instagram|FBAN|FBAV|MicroMessenger/i.test(ua);
+    var warn = document.getElementById("storageWarn");
+    if (!storageOk) {
+      warn.innerHTML = "⚠ この開き方では<b>記録が保存できない</b>。リンクをSafariやChromeで開き直してから使ってね。";
+      warn.style.display = "block";
+    } else if (inApp) {
+      warn.innerHTML = "⚠ LINEなどアプリの中のブラウザで開いてる。ここで付けた記録は<b>あとで消えることがある</b>から、右下のメニューから「Safariで開く」「他のブラウザで開く」を選んで、そっちを使ってね（記録を残したまま引っこしするには、下の「データのバックアップ」でコードを出してコピー → Safari側で復元）。";
+      warn.style.display = "block";
+    }
+  })();
+  document.getElementById("bkExport").addEventListener("click", function () {
+    var code = JSON.stringify(state);
+    var area = document.getElementById("bkArea");
+    area.value = code;
+    area.focus();
+    area.select();
+    area.setSelectionRange(0, code.length);
+    var copied = false;
+    try { copied = document.execCommand("copy"); } catch (e) {}
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).catch(function () {});
+      copied = true;
+    }
+    document.getElementById("bkStatus").textContent = copied
+      ? "コピーした！LINEのKeepメモやメールに貼って保存しておこう"
+      : "コードを長おしでコピーして、LINEのKeepメモなどに保存しておこう";
+  });
+  document.getElementById("bkImport").addEventListener("click", function () {
+    var st = document.getElementById("bkStatus");
+    var raw = document.getElementById("bkArea").value.trim();
+    if (!raw) { st.textContent = "先に、保存しておいたコードを上のらんに貼りつけてね"; return; }
+    try {
+      var s = JSON.parse(raw);
+      if (!s || typeof s !== "object" || !Array.isArray(s.homeworks) || !Array.isArray(s.entries)) throw new Error("bad");
+      if (!confirm("今の記録をバックアップの内容に置きかえます。いい？")) return;
+      state.homeworks = s.homeworks;
+      state.entries = s.entries;
+      state.tasks = Array.isArray(s.tasks) ? s.tasks : [];
+      state.rewardUses = Array.isArray(s.rewardUses) ? s.rewardUses : [];
+      save(); renderAll();
+      document.getElementById("bkArea").value = "";
+      st.textContent = "";
+      toast("✔ 復元完了！おかえり");
+    } catch (e) {
+      st.textContent = "コードが読みとれなかった。コピーしたコード全体（{ から } まで）を貼りつけてね";
+    }
+  });
+
+  /* ---------- init ---------- */
+  var dows = ["日", "月", "火", "水", "木", "金", "土"];
+  document.getElementById("todayDate").textContent =
+    today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + "（" + dows[today.getDay()] + "）";
+
+  function renderAll() { renderStatus(); renderReward(); renderQuests(); renderHomeworks(); renderTasks(); renderCal(); renderAch(); }
+  renderAll();
+})();
+</script>
+
+</body>
+</html>
