@@ -1,4 +1,11 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#22578f">
 <title>山下家の家計簿</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💴</text></svg>">
 <style>
   :root{
     color-scheme: light;
@@ -497,6 +504,8 @@
     *{ transition:none !important; }
   }
 </style>
+</head>
+<body>
 
 <div id="app">
   <div class="topbar">
@@ -628,7 +637,7 @@ const DEFAULT_RECURRING = [
 
 function freshState(){
   return {
-    settings:{ income:460000, fixed:0, savings:0, startDay:1, travelBase:100000 },
+    settings:{ income:460000, fixed:0, savings:0, startDay:1 },
     categories: DEFAULT_CATS.map(c => ({...c})),
     expenses: [],  // {id, date:"YYYY-MM-DD", catId, amount, memo, auto?}
     rules: [],     // {kw, catId} — 店名→カテゴリの学習
@@ -640,7 +649,6 @@ function freshState(){
 function normalizeState(s){
   if(!Array.isArray(s.rules)) s.rules = [];
   if(!Array.isArray(s.autoLog)) s.autoLog = [];
-  if(typeof s.settings.travelBase !== "number") s.settings.travelBase = 100000;
   for(const c of s.categories){
     if(c.period==="season" && !c.sb){
       const b = c.budget||0; // 旧形式（全季節同額）からの移行
@@ -745,55 +753,6 @@ function sumVariable(start, end){
 /* 有効な固定費の月額合計 */
 function recurringTotal(){
   return state.recurring.reduce((a,r)=> a + ((r.amount>0 && catExists(r.catId)) ? r.amount : 0), 0);
-}
-/* 今年の確定した月の節約累計（予算−実績の合計。記録がある月のみ） */
-function confirmedSavings(){
-  const budget = totalBudget();
-  const t = todayD();
-  let saved = 0, done = 0, budgetSum = 0, spentSum = 0;
-  for(let off=-1; off>-13; off--){
-    const cc = getCycle(off);
-    if(cc.end.getFullYear() < t.getFullYear()) break;
-    if(!(cc.end < t)) continue;
-    if(!state.expenses.some(e=>inRange(e.date, cc.start, cc.end))) continue;
-    const spent = sumExpenses(cc.start, cc.end);
-    saved += budget - spent;
-    budgetSum += budget;
-    spentSum += spent;
-    done++;
-  }
-  return { saved, done, budgetSum, spentSum };
-}
-/* 旅行ファンドカード（基本額＋節約累計、下限0） */
-function travelFundHTML(){
-  const base = state.settings.travelBase || 0;
-  if(base <= 0) return "";
-  const ys = confirmedSavings();
-  const fund = Math.max(0, base + ys.saved);
-  let sub;
-  if(ys.done === 0){
-    sub = '<div class="sub" style="font-size:12.5px;color:var(--ink-3)">予算内で暮らせた分が、そのまま旅行代に上乗せされます</div>';
-  }else if(ys.saved > 0){
-    sub = '<div class="sub" style="font-size:12.5px;color:var(--good);font-weight:650">節約で +'+yen(ys.saved)+' 上乗せ中🎉 次の旅行がグレードアップ！</div>';
-  }else if(ys.saved < 0){
-    sub = '<div class="sub" style="font-size:12.5px;color:var(--crit-text);font-weight:650">使いすぎで '+yen(ys.saved)+' 減額中… 今月の節約で取り返せます</div>';
-  }else{
-    sub = '<div class="sub" style="font-size:12.5px;color:var(--ink-3)">ぴったり予算通り。ここから上乗せを狙いましょう</div>';
-  }
-  const totals = ys.done > 0
-    ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px">'+
-        '<div style="display:flex;justify-content:space-between"><span>今年の通算予算（確定'+ys.done+'ヶ月分）</span><strong style="font-variant-numeric:tabular-nums;color:var(--ink)">'+yen(ys.budgetSum)+'</strong></div>'+
-        '<div style="display:flex;justify-content:space-between"><span>通算の実績（使った合計）</span><strong style="font-variant-numeric:tabular-nums;color:var(--ink)">'+yen(ys.spentSum)+'</strong></div>'+
-        '<div style="display:flex;justify-content:space-between"><span>達成状況</span><strong style="font-variant-numeric:tabular-nums;color:'+(ys.saved>=0?'var(--good)':'var(--crit-text)')+'">'+(ys.saved>=0?'+':'')+yen(ys.saved)+'</strong></div>'+
-      '</div>'
-    : '';
-  return '<div class="card">'+
-    '<div style="display:flex;justify-content:space-between;align-items:baseline"><h2>✈️ 旅行ファンド</h2>'+
-    '<span class="hint">基本 '+yen(base)+' ＋ 今年の節約分</span></div>'+
-    '<div style="font-size:26px;font-weight:650;margin-top:2px">'+yen(fund)+'</div>'+
-    sub +
-    totals +
-  '</div>';
 }
 /* 今サイクルの固定費を月初日付で自動記録（記録済みの印が付いたものはスキップ） */
 function applyRecurring(){
@@ -1190,7 +1149,6 @@ function renderHome(){
       '</div>'+
       foodWeekHTML +
     '</div>'+
-    travelFundHTML() +
     '<div class="card">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
         '<h2>カテゴリ別</h2>'+
@@ -1751,7 +1709,6 @@ function renderReport(){
 
   v.innerHTML =
     heroHTML +
-    travelFundHTML() +
     '<div class="card">'+
       '<h2 style="margin-bottom:6px">年間の節約累計</h2>'+
       buildCumChart(pts)+
@@ -1885,9 +1842,6 @@ function renderSettings(){
         '<span class="yen-input"><input type="text" inputmode="numeric" id="set-fixed" value="'+(s.fixed||0).toLocaleString("ja-JP")+'"></span></div>'+
       '<div class="field"><label>先取り貯蓄</label>'+
         '<span class="yen-input"><input type="text" inputmode="numeric" id="set-savings" value="'+(s.savings||0).toLocaleString("ja-JP")+'"></span></div>'+
-      '<div class="field"><label>✈️ 旅行の基本予算（年間）</label>'+
-        '<span class="yen-input"><input type="text" inputmode="numeric" id="set-travel" value="'+(s.travelBase||0).toLocaleString("ja-JP")+'"></span>'+
-        '<span class="hint">節約できた分が上乗せ・使いすぎた分が減額されて「旅行ファンド」としてホームに表示されます（下限0円）。0円にすると非表示。</span></div>'+
       '<div class="field"><label>月のはじまり（給料日など）</label>'+
         '<select id="set-startday">'+
           Array.from({length:28},(_,i)=>'<option value="'+(i+1)+'"'+((s.startDay||1)===i+1?" selected":"")+'>毎月 '+(i+1)+' 日</option>').join("")+
@@ -1941,9 +1895,7 @@ function renderSettings(){
   }
   bindYen("#set-income", n=> s.income = n);
   bindYen("#set-fixed",  n=> s.fixed = n);
-  bindYen("#set-savings",n=> s.savings = n);
-  bindYen("#set-travel", n=> s.travelBase = n);
-  v.querySelector("#set-startday").addEventListener("change", e=>{
+  bindYen("#set-savings",n=> s.savings = n);  v.querySelector("#set-startday").addEventListener("change", e=>{
     s.startDay = parseInt(e.target.value,10); saveState(); updateSummaries();
   });
 
@@ -2120,3 +2072,5 @@ renderTabbar();
 setupAdd();
 renderHome();
 </script>
+</body>
+</html>
